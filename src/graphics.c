@@ -73,7 +73,7 @@ GLFWwindow* init_window(const char* title, float width, float height) {
 	return window;
 }
 
-void drawRect(float x, float y, float width, float height, int textureID, float tx, float ty, float tw, float th, float texWidth, float texHeight, int flipped) {
+void drawRect(float x, float y, float width, float height, int textureID, float tx, float ty, float tw, float th, float texWidth, float texHeight, bool flipped) {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, textures[textureID]);
 
@@ -126,24 +126,24 @@ void drawGrid(void) {
 	glEnd();
 }
 
-void playAnimation(float x, float y, float width, float height, int textureID, Animation* anim, float deltaTime, int* currentFrame, float* timeAccumulator, int flipped) {
-    *timeAccumulator += deltaTime;
+void playAnimation(float x, float y, int textureID, Animation* anim, float deltaTime, bool flipped) {
+    anim->timeAccumulator += deltaTime;
 
-    if (*timeAccumulator >= anim->frameTime) {
-        *timeAccumulator -= anim->frameTime;
-        (*currentFrame)++;
+    if (anim->timeAccumulator >= anim->frameTime) {
+        anim->timeAccumulator -= anim->frameTime;
+        (anim->currentFrame)++;
 
-        if (*currentFrame > anim->endFrame) {
+        if (anim->currentFrame > anim->endFrame) {
             if (anim->loop) {
-                *currentFrame = anim->startFrame;
+                anim->currentFrame = anim->startFrame;
             } else {
-                *currentFrame = anim->endFrame;
+                anim->currentFrame = anim->endFrame;
             }
         }
     }
     int framesPerRow = anim->sheetWidth / anim->frameWidth;
-    int frameX = (*currentFrame % framesPerRow) * anim->frameWidth;
-    int frameY = (*currentFrame / framesPerRow) * anim->frameHeight;
+    int frameX = (anim->currentFrame % framesPerRow) * anim->frameWidth;
+    int frameY = (anim->currentFrame / framesPerRow) * anim->frameHeight;
 
-    drawRect(x, y, width, height, textureID, frameX, frameY, anim->frameWidth, anim->frameHeight, anim->sheetWidth, anim->sheetHeight, flipped);
+    drawRect(x, y, anim->frameWidth, anim->frameHeight, textureID, frameX, frameY, anim->frameWidth, anim->frameHeight, anim->sheetWidth, anim->sheetHeight, flipped);
 }

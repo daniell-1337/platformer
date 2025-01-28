@@ -6,19 +6,13 @@
 #include "level.h"
 
 typedef struct {
-	float x, y;
+    float x, y;
     float width, height;
     float velocity;
     float jumpVelocity;
-    float gravity;
-    int isJumping;
-    float coyoteTimer;
-    float coyoteTime;
+    bool doubleJumpAvailable;
+    bool flipped;
     Animation anim;
-    float timeAccumulator;
-    int currentFrame;
-    int flipped;
-    int canDoubleJump;
 } Player;
 
 void init_player(void);
