@@ -22,20 +22,18 @@ int main() {
     float lastFrame = 0.0f;
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
+        deltaTime = (float)(currentFrame - lastFrame);
         lastFrame = currentFrame;
 
+        glfwPollEvents();
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        updateLevel();
+        updateLevel(deltaTime);
         updatePlayer(deltaTime);
 
         glfwSwapBuffers(window);
-        glfwPollEvents();
-
 	}
-
     glfwTerminate();
     return 0;
 }

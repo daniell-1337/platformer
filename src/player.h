@@ -1,17 +1,19 @@
 #ifndef PLAYER_H
 #define PLAYER_H
-#include "graphics.h"
 #include <stdbool.h>
+#include <math.h>
+#include "graphics.h"
 #include "input.h"
 #include "level.h"
 
 typedef struct {
     float x, y;
     float width, height;
-    float velocity;
-    float jumpVelocity;
+    float velocityY;
     bool doubleJumpAvailable;
     bool flipped;
+    bool onGround;
+    int stage;
     Animation anim;
 } Player;
 

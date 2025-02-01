@@ -2,23 +2,24 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
-GLuint textures[3];
+Texture textures[5] = {0, 0, 0};
+
+float cameraX = 0.0f;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0.0f, 0.0f, width, height);
 }
 
-GLuint loadTexture(const char* path) {
+void loadTexture(const char* path, Texture* texture) {
 	int width, height, nrChannels;
 	unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
 	if (!data) {
         printf("Failed to load texture\n");
-        return 0;
     }
 
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -32,13 +33,26 @@ GLuint loadTexture(const char* path) {
 	}
 
 	stbi_image_free(data);
-	return texture;
+
+	texture->ID = textureID;
+	texture->width = width;
+	texture->height = height;
 }
 
 void loadTextures(void) {
-    textures[0] = loadTexture("textures/blank.jpg");
-    textures[1] = loadTexture("textures/player.png");
-    textures[2] = loadTexture("levels/1/level.jpg");
+	loadTexture("textures/blank.jpg", &textures[0]);
+	loadTexture("textures/player.png", &textures[1]);
+	loadTexture("levels/1/level.jpg", &textures[2]);
+	loadTexture("textures/coin.png", &textures[3]);
+	loadTexture("textures/coin_collect.png", &textures[4]);
+}
+
+void setCamera(float x) {
+    cameraX = x;
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(cameraX, cameraX + 256.0f, 0.0f, 144.0f, -1.0f, 1.0f);
+    glMatrixMode(GL_MODELVIEW);
 }
 
 void init_graphics(void) {
@@ -49,7 +63,7 @@ void init_graphics(void) {
 	glViewport(0.0f, 0.0f, 256.0f, 144.0f);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0.0, 256.0f, 0.0f, 144.0f, -1.0f, 1.0f);
+	glOrtho(cameraX, cameraX + 256.0f, 0.0f, 144.0f, -1.0f, 1.0f);
 
 	stbi_set_flip_vertically_on_load(1);
 	loadTextures();
@@ -70,17 +84,18 @@ GLFWwindow* init_window(const char* title, float width, float height) {
 	glfwMakeContextCurrent(window);
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSwapInterval(1);
 	return window;
 }
 
-void drawRect(float x, float y, float width, float height, int textureID, float tx, float ty, float tw, float th, float texWidth, float texHeight, bool flipped) {
+void drawRect(float x, float y, float width, float height, int textureID, float tx, float ty, float tw, float th, bool flipped) {
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textures[textureID]);
+    glBindTexture(GL_TEXTURE_2D, textures[textureID].ID);
 
-    float u1 = tx / texWidth;
-    float v1 = ty / texHeight;
-    float u2 = (tx + tw) / texWidth;
-    float v2 = (ty + th) / texHeight;
+    float u1 = tx / textures[textureID].width;
+    float v1 = ty / textures[textureID].height;
+    float u2 = (tx + tw) / textures[textureID].width;
+    float v2 = (ty + th) / textures[textureID].height;
 
     GLfloat vertices[] = {
         0.0f, 0.0f, u1, v1,
@@ -145,5 +160,5 @@ void playAnimation(float x, float y, int textureID, Animation* anim, float delta
     int frameX = (anim->currentFrame % framesPerRow) * anim->frameWidth;
     int frameY = (anim->currentFrame / framesPerRow) * anim->frameHeight;
 
-    drawRect(x, y, anim->frameWidth, anim->frameHeight, textureID, frameX, frameY, anim->frameWidth, anim->frameHeight, anim->sheetWidth, anim->sheetHeight, flipped);
+    drawRect(x, y, anim->frameWidth, anim->frameHeight, textureID, frameX, frameY, anim->frameWidth, anim->frameHeight, flipped);
 }

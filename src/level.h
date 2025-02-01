@@ -6,7 +6,8 @@
 #include "graphics.h"
 
 void init_level(const char* filePath); 
-void updateLevel(void);
+void updateLevel(float deltaTime);
 int getCell(int x, int y);
+void setCell(int x, int y, int type);
 
 #endif

@@ -6,6 +6,12 @@
 #include <stdbool.h>
 
 typedef struct {
+    GLuint ID;
+    int width;
+    int height;
+} Texture;
+
+typedef struct {
     int startFrame;
     int endFrame;
     int currentFrame;
@@ -20,8 +26,10 @@ typedef struct {
 
 void init_graphics(void);
 GLFWwindow* init_window(const char* title, float width, float height);
-void drawRect(float x, float y, float width, float height, int textureID, float tx, float ty, float tw, float th, float texWidth, float texHeight, bool flipped);
+void drawRect(float x, float y, float width, float height, int textureID, float tx, float ty, float tw, float th, bool flipped);
 void drawGrid(void);
 void playAnimation(float x, float y, int textureID, Animation* anim, float deltaTime, bool flipped);
+void updateCamera(void);
+void setCamera(float x);
 
 #endif
